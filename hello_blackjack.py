@@ -242,7 +242,7 @@ def transparent2(fade_image_filename, back_image_filename, color, x_pos, y_pos):
 		screen.blit(fade_image, (x_pos, y_pos))
 		pygame.display.update()
 
-#color has to be list of 3, fade image filename has to be list type
+#color has to be list of 3, fade_image_filename has to be list type
 def transparent3(fade_image_filename, back_image_filename, color, change_num, fade_speed):
 	global card_pos_info
 	fade_image = []
@@ -405,6 +405,8 @@ def get_one_card(who):	#player = 0, dealer = 1
 		Kev_sleep_millisecond2(1000)
 
 def bustCheck(hold):
+	global dealer_hold
+
 	if total(hold) > 21:
 		if len(dealer_hold) == 2:	#dont want to sleep after dealer's bust
 			Kev_sleep_millisecond2(1000)
@@ -895,11 +897,18 @@ while True:
 				#Kev_sleep_millisecond2(500)
 
 				if bustCheck(player_hold) == True:
-					player_bust = True
 					startFlag += 1
+					player_bust = 1
 					allShow(background_color)
 					pygame.display.update()
-					#Kev_sleep_millisecond2(500)
+					Kev_sleep_millisecond2(1000)
+					allShow(background_color)
+					screen.blit(dealerTurn_image, ((game_window[0] - dealerTurn_image.get_width()) / 2, (game_window[1] - dealerTurn_image.get_height()) / 2))
+					pygame.display.update()
+					Kev_sleep_millisecond2(1500)
+					allShow(background_color)
+					pygame.display.update()
+					Kev_sleep_millisecond2(1000)
 
 			elif event.key == K_s:
 				startFlag += 1
@@ -925,7 +934,7 @@ while True:
 
 		if dealer_AI() == True:
 			if bustCheck(dealer_hold) == True:
-				dealer_bust = True
+				dealer_bust = 1
 				startFlag += 1
 				first_check = 0
 			else:
@@ -939,7 +948,7 @@ while True:
 	while startFlag == 8: #check result
 		allShow(background_color)
 		pygame.display.update()
-		Kev_sleep_millisecond2(1000)
+		Kev_sleep_millisecond2(2000)
 		gameResult()
 		startFlag += 1
 		allShow(background_color)
@@ -956,7 +965,8 @@ while True:
 
 		for event in pygame.event.get():
 			if event.type == QUIT:
-				startFlag = 0
+				exit()
+
 
 		if event.type == KEYDOWN:
 			if event.key == K_y:
