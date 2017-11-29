@@ -1,6 +1,18 @@
-#!/usr/bin/evn python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-#too much image load...
+#-------------------------------------------------------------------------------
+# Name:        Hello Blackjack
+# Purpose:     for studying Python 2.7
+#
+# Author:      Kevin T-semi
+#
+# Created:     Dec. 31, 2014
+# Copyright:   (c) Kevin 2014
+# Licence:     No License
+#
+# Contact:     http://www.t-semi.org/
+#-------------------------------------------------------------------------------
 
 import pygame
 import sys
@@ -19,9 +31,13 @@ pygame.init()
 game_window = [1000, 600]
 background_color = [34, 177, 76]
 screen = pygame.display.set_mode((game_window[0], game_window[1]), 0, 32)
-pygame.display.set_caption("-Simple Blackjack-")
-#sys.path.append("C:\Users\kaz\Desktop\pywork\Blackjack\card")
-#import sys_card
+pygame.display.set_caption("Simple Py-Blackjack")
+sysfont = pygame.font.SysFont("arial", 40)
+
+gamelog_filename = "gamelog.txt"
+gamelog_count = []
+for line in open(gamelog_filename, "r"):
+	gamelog_count.append(line)
 
 #setting image's file name
 
@@ -44,6 +60,13 @@ stand_image_filename = "./img/stand.png"
 continue_image_filename = "./img/continue.png"
 thankyou_image_filename = "./img/ThankYou.png"
 dealerTurn_image_filename = "./img/DealerTurn.png"
+cardSource_image_filename = "./img/source/cardSource.PNG"
+coolText_image_filename = "./img/source/coolText.PNG"
+maoudamashii_image_filename = "./img/source/maoudamashii.PNG"
+usui_image_filename = "./img/source/usui.jpg"
+totalGame_image_filename = "./img/totalGame.png"
+tsemi_image_filename = "./img/tsemi_logo.png"
+
 #loading images
 
 loading_image = pygame.image.load(loading_image_filename).convert()
@@ -65,7 +88,15 @@ stand_image = pygame.image.load(stand_image_filename).convert_alpha()
 continue_image = pygame.image.load(continue_image_filename).convert_alpha()
 thankyou_image = pygame.image.load(thankyou_image_filename).convert_alpha()
 dealerTurn_image = pygame.image.load(dealerTurn_image_filename).convert_alpha()
-#screen update
+cardSource_image = pygame.image.load(cardSource_image_filename).convert_alpha()
+coolText_image = pygame.image.load(coolText_image_filename).convert_alpha()
+maoudamashii_image = pygame.image.load(maoudamashii_image_filename).convert_alpha()
+usui_image = pygame.image.load(usui_image_filename).convert_alpha()
+totalGame_image = pygame.image.load(totalGame_image_filename).convert_alpha()
+tsemi_image = pygame.image.load(tsemi_image_filename).convert_alpha()
+
+hit_sound = pygame.mixer.Sound("./music/hit.wav")
+decision_sound = pygame.mixer.Sound("./music/decision.wav")
 
 screen.blit(loading_image, (0, 0))
 pygame.display.update()
@@ -106,16 +137,6 @@ now = 0
 blackjack = [0, 0]
 
 #-------------------------------------Load card deck--------------------------------
-#Card1_image = range(len(Card1))
-#Card2_image = range(len(Card2))
-#Card3_image = range(len(Card3))
-#Card4_image = range(len(Card4))
-
-#for val in range(13):
-#	Card1_image[val] = pygame.image.load(card2img(Card1[val])).convert_alpha()
-#	Card2_image[val] = pygame.image.load(card2img(Card2[val])).convert_alpha()
-#	Card3_image[val] = pygame.image.load(card2img(Card3[val])).convert_alpha()
-#	Card4_image[val] = pygame.image.load(card2img(Card4[val])).convert_alpha()
 
 Card1_image = []
 Card2_image = []
@@ -134,48 +155,6 @@ for val in range(each_deck_num):
 	Card4_image.append(pygame.image.load(card2img(Card4[val])).convert_alpha())
 
 #-------------------------------------Load End--------------------------------#
-
-def Kev_sleep_second(time):	#only allowed integer
-	finishFlag = 0
-	time_passed = 0
-	clock = datetime.datetime.today()
-	clock_change = clock
-
-	event = pygame.event.poll()	#Get event
-	for event in pygame.event.get():
-		if event.type == QUIT:
-			exit()
-
-	while finishFlag== 0:
-		clock = datetime.datetime.today()
-		if clock.second != clock_change.second :
-		        time_passed += 1
-        	        clock_change = clock
-		if time_passed == time:
-			finishFlag = 1
-
-def Kev_sleep_millisecond(time):	#maximum is 999
-	time *= 1000
-	time_passed = 0
-	finishFlag = 0
-	clock = datetime.datetime.today()
-	clock_change = clock
-
-	event = pygame.event.poll()	#Get event
-	for event in pygame.event.get():
-		if event.type == QUIT:
-			exit()
-
-	if clock_change.microsecond + time > 1000000:
-        	clock_change = clock_change.microsecond + time - 1000000
-	else:
-	        clock_change = clock_change.microsecond + time
-
-	while finishFlag== 0:
-		clock = datetime.datetime.today()
-
-		if clock.microsecond == clock_change:
-			finishFlag = 1
 
 def Kev_sleep_millisecond2(time):
 	second = 1
@@ -221,6 +200,7 @@ def centerPos(image_filename):
 	pos = [(game_window[0] - image.get_width()) / 2, (game_window[1] - image.get_height()) / 2]
 	return pos
 
+#transparent image and switch card to faded one
 def transparent2(fade_image_filename, back_image_filename, color, x_pos, y_pos):	#color has to be list of 3
 
 	event = pygame.event.poll()	#Get event
@@ -235,7 +215,6 @@ def transparent2(fade_image_filename, back_image_filename, color, x_pos, y_pos):
 	for val in range(10):  #transparent
 		Kev_sleep_millisecond2(100)
 		screen.fill((color[0], color[1], color[2]))
-		#pygame.time.wait(100)
 		transparent_activate(fade_image, 1.5, 1)
 		if back_image_filename != "NONE":
 			screen.blit(back_image, (x_pos, y_pos))
@@ -243,6 +222,7 @@ def transparent2(fade_image_filename, back_image_filename, color, x_pos, y_pos):
 		pygame.display.update()
 
 #color has to be list of 3, fade_image_filename has to be list type
+#transparent card and switch card_pos_info from fade_image_filename to back_image_filename
 def transparent3(fade_image_filename, back_image_filename, color, change_num, fade_speed):
 	global card_pos_info
 	fade_image = []
@@ -256,7 +236,7 @@ def transparent3(fade_image_filename, back_image_filename, color, change_num, fa
 
 	for val in range(10):  #transparent
 		Kev_sleep_millisecond2(fade_speed)
-		screen.fill((color[0], color[1], color[2]))
+                screen.fill((color[0], color[1], color[2]))
 		transparent_activate(fade_image[change_num], 1.5, 1)
 
 		if back_image_filename != "NONE":
@@ -269,6 +249,7 @@ def transparent3(fade_image_filename, back_image_filename, color, change_num, fa
 	card_pos_info[change_num][0] = back_image_filename
 	reset()
 
+#use this function for transparent
 def transparent_activate(surface, fade_speed, fadeInOut):
 	uialpha = pygame.surfarray.pixels_alpha(surface)
 	if fadeInOut == 1:
@@ -277,6 +258,7 @@ def transparent_activate(surface, fade_speed, fadeInOut):
 		uialpha *= 1.2
 	del uialpha
 
+#set all card position from player and dealer_pos_info
 def setAllCardPos():
 	global card_pos_info
 	global player_pos_info
@@ -291,6 +273,7 @@ def setAllCardPos():
 	for val in dealer_pos_info:
 		card_pos_info.append(val)
 
+#show all card
 def allShow(color):	#all images has to be list type
 	global card_pos_info
 	image_name = []
@@ -302,6 +285,7 @@ def allShow(color):	#all images has to be list type
 	for i in range(len(card_pos_info)):
 		screen.blit(image_name[i], (card_pos_info[i][1], card_pos_info[i][2]))
 
+#get one card
 def get_one_card(who):	#player = 0, dealer = 1
 	global card_pos_info
 	global now
@@ -312,6 +296,7 @@ def get_one_card(who):	#player = 0, dealer = 1
 	check = 0
 	speed = 4
 
+	hit_sound.play()
 	if who == 0:
 		player_card_info = [redBackCard_image_filename, center_card[0], center_card[1]]
 		player_hold.append(deck[deck_num[now]])
@@ -349,12 +334,6 @@ def get_one_card(who):	#player = 0, dealer = 1
 				allShow(background_color)
 				pygame.display.update()
 
-
-#		player_card_info.append((game_window[0] - redBackCard_image.get_width()) / 2 + (card_num - 1) * (redBackCard_image.get_width() / 2 + 5))
-#		player_card_info.append(game_window[1] - redBackCard_image.get_height())
-
-#		for val in range(len(player_pos_info)):5)
-#			player_pos_info[val][1] -= (redBackCard_image.get_width() / 2 +
 		setAllCardPos()
 		transparent3(card_pos_info, card2img(player_hold[len(player_hold) - 1]), background_color, len(player_hold), 50)
 		now += 1
@@ -387,7 +366,6 @@ def get_one_card(who):	#player = 0, dealer = 1
 					dealer_pos_info[val][1] -= 1
 				check += 1
 
-			#pygame.time.wait(1)
 			allShow(background_color)
 			setAllCardPos()
 			screen.blit(hit_image, ((game_window[0] - hit_image.get_width()) / 2, (game_window[1] - hit_image.get_height()) / 2))
@@ -404,6 +382,7 @@ def get_one_card(who):	#player = 0, dealer = 1
 		now += 1
 		Kev_sleep_millisecond2(1000)
 
+#check whether player and dealer got bust
 def bustCheck(hold):
 	global dealer_hold
 
@@ -417,8 +396,7 @@ def bustCheck(hold):
 		return True
 	return False
 
-
-
+#return total number of hold
 def total(hold):
 	ace = 0
 	hold_result = 0
@@ -437,6 +415,7 @@ def total(hold):
 
 	return hold_result
 
+#if the deck has less than 10 cards, this function automatically shuffle
 def shuffle_check():
 	global now
 	global deck
@@ -452,7 +431,7 @@ def shuffle_check():
 		pygame.display.update()
 		Kev_sleep_millisecond2(1000)
 
-
+#set delaer's card
 def game_ready_dealer():
 	global now
 	global deck
@@ -472,6 +451,7 @@ def game_ready_dealer():
 
 	return dealer_hold
 
+#set player's card
 def game_ready_player():
 	global now
 	global deck
@@ -490,23 +470,7 @@ def game_ready_player():
 
 	return player_hold
 
-def show(who, hold):
-	player_total = total(hold)
-
-
-	if who == 0:
-		print hold[0], "|",
-		for val in hold[1:]:
-			print " ?  |",
-		print
-
-	elif who == 1:
-		for val in hold:
-			print  val, "|",
-		print "   SUM = ", player_total
-	else:
-		print "ERROR 3"
-
+#Dealer's AI
 def dealer_AI():
 	global now
 	global deck
@@ -524,19 +488,25 @@ def youWin():
 	screen.blit(youwin_image, ((game_window[0] - youwin_image.get_width()) / 2, (game_window[1] - youwin_image.get_height()) / 2))
 	pygame.display.update()
 	Kev_sleep_millisecond2(2000)
+	gamelog_count[0] = str(int(gamelog_count[0]) + 1)
+	gamelog_count[1] = str(int(gamelog_count[1]) + 1)
 
 def youLose():
 	allShow(background_color)
 	screen.blit(youlose_image, ((game_window[0] - youlose_image.get_width()) / 2, (game_window[1] - youlose_image.get_height()) / 2))
 	pygame.display.update()
 	Kev_sleep_millisecond2(2000)
+	gamelog_count[0] = str(int(gamelog_count[0]) + 1)
+	gamelog_count[2] = str(int(gamelog_count[2]) + 1)
 
 def draw():
 	allShow(background_color)
 	screen.blit(draw_image, ((game_window[0] - draw_image.get_width()) / 2, (game_window[1] - draw_image.get_height()) / 2))
 	pygame.display.update()
 	Kev_sleep_millisecond2(2000)
+	gamelog_count[0] = str(int(gamelog_count[0]) + 1)
 
+#check game result
 def gameResult():
 	global player_hold
 	global dealer_hold
@@ -588,6 +558,7 @@ def gameResult():
 		else:
 			youLose()
 
+#reset global number
 def reset():
 	global i
 	global j
@@ -597,20 +568,53 @@ def reset():
 	j = 0
 	val = 0
 
+def error(error_code):
+	global startFlag
+	errorfont = pygame.font.SysFont("arial", 80)
+	fix_complete = autofix(error_code)
+
+	if fix_complete != True:
+		errorNum = errorfont.render(str(error_code), True, (0, 0, 0))
+		errorWord = errorfont.render("ERROR", True, (0, 0, 0))
+		screen.blit(errorWord, ((game_window[0] - errorWord.get_width()) / 2, (game_window[1] - errorWord.get_height()) / 2))
+		screen.blit(errorNum, ((game_window[0] + errorWord.get_width()) / 2 + 20, (game_window[1] - errorNum.get_height()) / 2))
+		pygame.display.update()
+
+		while startFlag != 0:
+			event = pygame.event.poll()	#Get event
+
+			for event in pygame.event.get():
+				if event.type == QUIT:
+					exit()
+
+			if event.type == KEYDOWN:
+				if event.key == K_ESCAPE:
+					exit()
+				if event.key == K_SPACE:
+					exit()
+
+def autofix(error_code):
+	global gamelog_count
+
+	if error_code == 1:
+		fix_count = []
+		for val in gamelog_count:
+			if val != "\n":
+				fix_count.append(val)
+		gamelog_count = fix_count
+		if len(gamelog_count) == 3:
+			return True
+	return False
+
 Kev_sleep_millisecond2(1000)
 pygame.display.update()
 
 #-----------------------------Start Up-----------------------------------------------#
 
 transparent2(loading_image_filename, "NONE", background_color, 0, 0)
-#transparent(loading_image_filename, 1.5, 10, 1, background_color[0], background_color[1], background_color[2])
 pygame.display.update()
 Kev_sleep_millisecond2(500)
 
-#start_image_setting = Image.open(start_image_filename)
-#editor_image_setting = Image.open(editor_image_filename)
-
-#screen.blit(start_image, (0, 0))
 screen.blit(editor_image, ((game_window[0] - editor_image.get_width()) / 2, (game_window[1] - editor_image.get_height()) / 3))
 pygame.display.update()
 Kev_sleep_millisecond2(3000)
@@ -618,27 +622,28 @@ Kev_sleep_millisecond2(3000)
 screen.blit(background_image, (0, 0))
 pygame.display.update()
 Kev_sleep_millisecond2(1000)
-#screen.blit(background_image, (0, 0))
-#screen.blit(start_image, ((game_window[0] - start_image.get_width()) / 2, (game_window[1] - start_image.get_height()) / 3))
-#pygame.display.update()
-#pygame.time.delay(3000)
 
 pos1 = 0
 card_change = 0
-x1 = 0.0
-y1 = 0.0
-#pos2 = 1
-#x2 = 0.0 + game_window[0] - redBackCard_image.get_width()
-#y2 = 0.0
+x1 = 1
+y1 = 0
 startFlag = 0
+
+#play bgm
+pygame.mixer.music.load("./music/bgm.wav")
+pygame.mixer.music.play(-1)
 
 while True:
 	while startFlag == 0:	#introduction
+
+		if gamelog_count[2] == "\n":
+			error(1)
+
 		now = 0
 		now_time = datetime.datetime.today()
 		screen.blit(background_image, (0, 0))
 
-		if now_time.second % 2 == 0:
+		if now_time.second % 2 == 0: # Show StartButton Everytime
 			screen.blit(startButton_image, ((game_window[0] - startButton_image.get_width()) / 2, (game_window[1] - startButton_image.get_height()) / 3 * 1.6))
 
 		if pos1 == 0:
@@ -668,31 +673,11 @@ while True:
 		if card_change > 12:
 			card_change = 0
 
-#		if pos2 == 0:
-#			x2 += 1
-#			if x2 + redBackCard_image.get_width() > game_window[0]:
-#				pos2 += 1
-#		elif pos2 == 1:
-#				pos2 += 1
-#		elif pos2 == 2:
-#			x2 -= 1
-#			if x2 == 0:
-#				pos2 += 1
-#		elif pos2 == 3:
-#			y2 -= 1
-#			if y2 == 0:
-#				pos2 = 0
-
 		screen.blit((Card1_image[card_change]), (x1, y1))
 		screen.blit((Card2_image[card_change]), (abs(x1 - game_window[0]) - redBackCard_image.get_width(), y1))
 		screen.blit((Card3_image[card_change]), (x1, abs(y1 - game_window[1] + redBackCard_image.get_height())))
 		screen.blit((Card4_image[card_change]), (abs(x1 - game_window[0]) - redBackCard_image.get_width(), abs(y1 - game_window[1] + redBackCard_image.get_height())))
-	#	screen.blit(redBackCard_image, (x2, y2))
-	#	screen.blit(redBackCard_image, (abs(x2 - game_window[0]) - redBackCard_image.get_width(), abs(y2 - game_window[1] + redBackCard_image.get_height())))
 		screen.blit(start_image, ((game_window[0] - start_image.get_width()) / 2, (game_window[1] - start_image.get_height()) / 3))
-
-		pygame.time.delay(5)
-		pygame.display.update()
 
 		event = pygame.event.poll()	#Get event
 
@@ -704,7 +689,156 @@ while True:
 			if event.key == K_ESCAPE:
 				exit()
 			if event.key == K_SPACE:
-				startFlag = 1
+				decision_sound.play()
+				startFlag = 20
+
+		pygame.time.delay(5)
+		pygame.display.update()
+
+	if startFlag == 20:	#start screen
+		select = 0
+		while startFlag == 20:
+                        if select == 0:	#change selected color
+                                startWord = sysfont.render("Game start", True, (255, 0, 0))
+                                historyWord = sysfont.render("History", True, (0, 0, 0))
+                                creditWord = sysfont.render("Credit", True, (0, 0, 0))
+                        elif select == 1:
+                                startWord = sysfont.render("Game start", True, (0, 0, 0))
+                                historyWord = sysfont.render("History", True, (255, 0, 0))
+                                creditWord = sysfont.render("Credit", True, (0, 0, 0))
+                        else:
+                                startWord = sysfont.render("Game start", True, (0, 0, 0))
+                                historyWord = sysfont.render("History", True, (0, 0, 0))
+                                creditWord = sysfont.render("Credit", True, (255, 0, 0))
+
+                        screen.blit(background_image, (0, 0))
+
+			if pos1 == 0:
+				x1 += 1
+				if x1 + redBackCard_image.get_width() > game_window[0]:
+					pos1 += 1
+					card_change += 1
+
+			elif pos1 == 1:
+				y1 += 1
+				if y1 + redBackCard_image.get_height() > game_window[1]:
+					pos1 += 1
+					card_change += 1
+
+			elif pos1 == 2:
+				x1 -= 1
+				if x1 == 0:
+					pos1 += 1
+					card_change += 1
+
+			elif pos1 == 3:
+				y1 -= 1
+				if y1 == 0:
+					pos1 = 0
+					card_change += 1
+
+			if card_change > 12:
+				card_change = 0
+
+        		event = pygame.event.poll()	#Get event
+
+        		for event in pygame.event.get():
+        			if event.type == QUIT:
+        				exit()
+
+        		if event.type == KEYDOWN:
+        			if event.key == K_ESCAPE:
+        				exit()
+        			if event.key == K_UP:
+                                        select -= 1
+                                if event.key == K_DOWN:
+                                        select += 1
+                                if event.key == K_SPACE:
+					decision_sound.play()
+                                        if select == 0:
+                                                startFlag = 1
+                                        elif select == 1:
+                                                startFlag = 21
+                                        else:
+                                                startFlag = 22
+
+                                if select < 0:
+                                        select = 2
+                                elif select > 2:
+                                        select = 0
+
+			screen.blit((Card1_image[card_change]), (x1, y1))
+			screen.blit((Card2_image[card_change]), (abs(x1 - game_window[0]) - redBackCard_image.get_width(), y1))
+			screen.blit((Card3_image[card_change]), (x1, abs(y1 - game_window[1] + redBackCard_image.get_height())))
+			screen.blit((Card4_image[card_change]), (abs(x1 - game_window[0]) - redBackCard_image.get_width(), abs(y1 - game_window[1] + redBackCard_image.get_height())))
+			screen.blit(start_image, ((game_window[0] - start_image.get_width()) / 2, (game_window[1] - start_image.get_height()) / 3))
+                        screen.blit(startWord, ((game_window[0] - startWord.get_width()) / 2, (game_window[1] - startWord.get_height()) / 3 * 2 - 90))
+                        screen.blit(historyWord, ((game_window[0] - historyWord.get_width()) / 2, (game_window[1] - historyWord.get_height()) / 3 * 2 - 45))
+                        screen.blit(creditWord, ((game_window[0] - creditWord.get_width()) / 2, (game_window[1] - creditWord.get_height()) / 3 * 2))
+
+			pygame.time.delay(5)
+			pygame.display.update()
+
+	if startFlag == 21:	#history screen
+		historyfont = pygame.font.SysFont("arial", 70)
+		totalGame_count_word = historyfont.render(str(int(gamelog_count[0])), True, (0, 0, 0))
+		win_count_word = historyfont.render(str(int(gamelog_count[1])), True, (0, 0, 0))
+		lose_count_word = historyfont.render(str(int(gamelog_count[2])), True, (0, 0, 0))
+		draw_count_word = historyfont.render(str(int(gamelog_count[0]) - int(gamelog_count[1]) - int(gamelog_count[2])), True, (0, 0, 0))
+
+		screen.fill((background_color[0], background_color[1], background_color[2]))
+		screen.blit(totalGame_image, (20, game_window[1] / 5))
+		screen.blit(totalGame_count_word, (game_window[0] / 2, game_window[1] / 5 - 10))
+		screen.blit(youwin_image, (20, game_window[1] / 5 * 2))
+		screen.blit(win_count_word, (game_window[0] / 2, game_window[1] / 5 * 2 - 10))
+		screen.blit(draw_image, (20, game_window[1] / 5 * 3))
+		screen.blit(draw_count_word, (game_window[0] / 2, game_window[1] / 5 * 3 - 10))
+		screen.blit(youlose_image, (20, game_window[1] / 5 * 4))
+		screen.blit(lose_count_word, (game_window[0] / 2, game_window[1] / 5 * 4 - 10))
+		pygame.display.update()
+
+                while startFlag == 21:
+                        event = pygame.event.poll()	#Get event
+
+                        for event in pygame.event.get():
+        			if event.type == QUIT:
+        				exit()
+
+        		if event.type == KEYDOWN:
+        			if event.key == K_ESCAPE:
+        				exit()
+        			if event.key == K_SPACE:
+					decision_sound.play()
+                                        startFlag = 0
+
+        if startFlag == 22:	#credit screen
+                screen.fill((background_color[0], background_color[1], background_color[2]))
+                creditfont = pygame.font.SysFont("arial", 45)
+                createWord = creditfont.render("This game is created by", True, (0, 0, 0))
+                creatorWord = creditfont.render("Kevin", True, (255, 0, 0))
+                specialThanksWord = sysfont.render("Special Thanks", True, (0, 0, 0))
+                screen.blit(createWord, (game_window[0] / 2 - createWord.get_width() - 10 , (game_window[1] - createWord.get_height()) / 4))
+                screen.blit(creatorWord, (game_window[0] / 2 + 10, (game_window[1] - creatorWord.get_height()) / 4))
+		screen.blit(specialThanksWord, (game_window[0] / 2 - createWord.get_width() - 10 , (game_window[1] - specialThanksWord.get_height()) / 2 - 50))
+		screen.blit(cardSource_image, (game_window[0] / 2 - cardSource_image.get_width() - 10, (game_window[1] - cardSource_image.get_height()) / 8 * 5 - 50))
+		screen.blit(coolText_image, (game_window[0] / 2 + 10, (game_window[1] - coolText_image.get_height()) / 8 * 5 - 50))
+		screen.blit(maoudamashii_image, (game_window[0] / 2 - maoudamashii_image.get_width() - 10, (game_window[1] - maoudamashii_image.get_height()) / 8 * 7 - 50))
+		screen.blit(usui_image, (game_window[0] / 2 + 10, (game_window[1] - maoudamashii_image.get_height()) / 8 * 7 - 50))
+		screen.blit(tsemi_image, ((game_window[0] - tsemi_image.get_width()) / 2, (game_window[1] - tsemi_image.get_height()) - 5))
+                pygame.display.update()
+                while startFlag == 22:
+                        event = pygame.event.poll()	#Get event
+
+                        for event in pygame.event.get():
+        			if event.type == QUIT:
+        				exit()
+
+        		if event.type == KEYDOWN:
+        			if event.key == K_ESCAPE:
+        				exit()
+        			if event.key == K_SPACE:
+					decision_sound.play()
+                                        startFlag = 0
 
  	while startFlag == 1:	#move all card to middle
 		if x1 > game_window[0] / 2 -  redBackCard_image.get_width() / 2:
@@ -738,14 +872,7 @@ while True:
 		if startFlag == 3:
 			reset()
 
-#	for val in range(10):  #transparent
-#		Kev_sleep_millisecond(100)
-#		#pygame.time.wait(100)
-#		transparent_activate(Card1_image[card_change], 1.5, 1)
-#		screen.blit(redBackCard_image, (game_window[0] / 2 - redBackCard_image.get_width() / 2,  game_window[1] / 2 - redBackCard_image.get_height() / 2))
-#		screen.blit(Card1_image[card_change], (game_window[0] / 2 - redBackCard_image.get_width() / 2,  game_window[1] / 2 - redBackCard_image.get_height() / 2))
-
-#--------------------------------------------main start-------------------------------------------#
+#--------------------------------------------Game Start-------------------------------------------#
 
 	while startFlag == 3:	#set player and dealer's hand
 		if now > count - 4:	#deck shuffle
@@ -755,13 +882,8 @@ while True:
 			pygame.display.update()
 			Kev_sleep_millisecond2(500)
 
-#		gameCardPos_x = [game_window[0] / 2 - redBackCard_image.get_width() - 10, game_window[0] / 2 + 10]
-#		gameCardPos_y = [game_window[1] - redBackCard_image.get_height(), game_window[1] - redBackCard_image.get_height()]
 		pos = [0, 0]
-#		i += 1
-
-#		gameCardPos_x.append(center_card[0])
-#		gameCardPos_y.append(game_window[1] - redBackCard_image.get_height())
+		hit_sound.play()
 
 		for val in range((game_window[1] - redBackCard_image.get_height()) / 2):
 			pos[0] += 1	#using pos in different way
@@ -844,15 +966,6 @@ while True:
 			player_action = 2
 			startFlag = 9
 
-		#elif blackjack[0] == 1:	#Dealer has blackjack
-		#	print "--Dealer's Hand--"
-		#	show(1, dealer_hold)
-		#	print "--Player's Hand--"
-		#	show(1, player_hold)
-		#	print "Dealer has blackjack!!!"
-		#	player_action = 2
-		#	startFlag = 6
-
 		elif blackjack[1] == 1:	#Player has blackjack
 			Kev_sleep_millisecond2(1000)
 			allShow(background_color)
@@ -892,6 +1005,8 @@ while True:
 				exit()
 
 		if event.type == KEYDOWN:
+			if event.key == K_ESCAPE:
+        			exit()
 			if event.key == K_h:
 				get_one_card(0)	#player = 0, dealer = 1
 				#Kev_sleep_millisecond2(500)
@@ -925,7 +1040,7 @@ while True:
 			else:
 				print "Not allowed"
 
-	while startFlag == 7:	#Dealer's turn
+	while startFlag == 7:   #Dealer's turn
 		if first_check == 0:
 			transparent3(card_pos_info, card2img(dealer_hold[1]), background_color, len(card_pos_info) - 1, 50)
 			first_check += 1
@@ -934,7 +1049,7 @@ while True:
 
 		if dealer_AI() == True:
 			if bustCheck(dealer_hold) == True:
-				dealer_bust = 1
+				dealer_bust = True
 				startFlag += 1
 				first_check = 0
 			else:
@@ -945,7 +1060,7 @@ while True:
 				startFlag += 1
 				first_check = 0
 
-	while startFlag == 8: #check result
+	while startFlag == 8: #check and save result
 		allShow(background_color)
 		pygame.display.update()
 		Kev_sleep_millisecond2(2000)
@@ -953,7 +1068,14 @@ while True:
 		startFlag += 1
 		allShow(background_color)
 		pygame.display.update()
-		Kev_sleep_millisecond2(1000)
+		Kev_sleep_millisecond2(1500)
+
+		gamelog = open(gamelog_filename, "w")
+		for val in gamelog_count:
+			gamelog.write(str(int(val)))
+			gamelog.write("\n")
+		gamelog.flush()
+		gamelog.close()
 
 	while startFlag == 9:	# continue check
 		shuffle_check()
@@ -967,20 +1089,26 @@ while True:
 			if event.type == QUIT:
 				exit()
 
-
 		if event.type == KEYDOWN:
+			if event.key == K_ESCAPE:
+        			exit()
 			if event.key == K_y:
 				startFlag += 1
 			elif event.key == K_n:
 				startFlag = 0
+				pos1 = 0
+				card_change = 0
+				x1 = 1
+				y1 = 0
+				random.shuffle(deck_num)
 			else:
 				print "Not allowed"
 
 	while startFlag == 10: #move out all cards
 		for val in range(1, len(player_pos_info) + 1):
 			card_pos_info[val][1] -= 4
-		for val in range(len(player_pos_info) + 1, len(card_pos_info)):
-			card_pos_info[val][1] += 4
+               	for val in range(len(player_pos_info) + 1, len(card_pos_info)):
+	               	card_pos_info[val][1] += 4
 
 		if len(dealer_hold) > len(player_hold):
 			if card_pos_info[len(player_pos_info) + 1][1] > game_window[0]:
