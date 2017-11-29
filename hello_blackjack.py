@@ -1,5 +1,7 @@
 #!/usr/bin/evn python
 
+#too much image load
+
 import pygame
 import sys
 import time
@@ -157,6 +159,34 @@ def transparent2(fade_image_filename, back_image_filename, color, x_pos, y_pos):
 		screen.blit(fade_image, (x_pos, y_pos))
 		pygame.display.update()
 
+#color has to be list of 3, fade image filename has to be list type
+def transparent3(fade_image_filename, back_image_filename, color, change_num, fade_speed):
+	global card_pos_info
+
+	fade_image = []
+
+	if fade_speed == "Default":
+		fade_speed = 100
+	for val in range(len(fade_image_filename)):
+		fade_image.append(pygame.image.load(fade_image_filename[val][0]).convert_alpha())
+	if back_image_filename != "NONE":
+		back_image = pygame.image.load(back_image_filename).convert_alpha()
+
+	for val in range(10):  #transparent
+		Kev_sleep_millisecond(fade_speed)
+		screen.fill((color[0], color[1], color[2]))
+		transparent_activate(fade_image[change_num], 1.5, 1)
+
+		if back_image_filename != "NONE":
+			screen.blit(back_image, (fade_image_filename[change_num][1], fade_image_filename[change_num][2]))
+
+		for i in range(len(fade_image_filename)):
+			screen.blit(fade_image[i], (fade_image_filename[i][1], fade_image_filename[i][2]))
+
+		pygame.display.update()
+	card_pos_info[change_num][0] = back_image_filename
+	reset()
+
 def transparent_activate(surface, fade_speed, fadeInOut):
 	uialpha = pygame.surfarray.pixels_alpha(surface)
 	if fadeInOut == 1:
@@ -164,7 +194,6 @@ def transparent_activate(surface, fade_speed, fadeInOut):
 	else:
 		uialpha *= 1.2
 	del uialpha
-
 
 def total(hold):
 	ace = 0
@@ -473,6 +502,13 @@ while True:
 #--------------------------------------------main start-------------------------------------------#
 
 	while startFlag == 3:
+
+		if now > count - 4:	#deck shuffle
+			now = 0
+			random.shuffle(deck_num)
+			print "\n---Deck Shuffled---\n"
+			time.sleep(1)
+
 		gameCardPos_x = [game_window[0] / 2 - redBackCard_image.get_width() - 10, game_window[0] / 2 + 10]
 		gameCardPos_y = [game_window[1] - redBackCard_image.get_height(), game_window[1] - redBackCard_image.get_height()]
 		pos = [0, 0]
@@ -494,18 +530,33 @@ while True:
 			pos[1] += 1
 			screen.blit(background_image, (0, 0))
 			screen.blit((redBackCard_image), (center_card[0], center_card[1]))
-			screen.blit((redBackCard_image), (center_card[0] + pos[1], center_card[1] + pos[0]))	#right downside
-			screen.blit((redBackCard_image), (center_card[0] + pos[1], center_card[1] - pos[0]))	#right upside
 			screen.blit((redBackCard_image), (center_card[0] - pos[1], center_card[1] + pos[0]))	#left downside
+			screen.blit((redBackCard_image), (center_card[0] + pos[1], center_card[1] + pos[0]))	#right downside
 			screen.blit((redBackCard_image), (center_card[0] - pos[1], center_card[1] - pos[0]))	#left upside
+			screen.blit((redBackCard_image), (center_card[0] + pos[1], center_card[1] - pos[0]))	#right upside
 			pygame.time.delay(1)
 			pygame.display.update()
 
 		startFlag = 4
 		reset()
 
-#	while startFlag == 4:
-#		transparent2(redBackCard_image, back_image_filename, background_color, center_card[0] + pos[1], center_card[1] + pos[0])
-#		transparent2(redBackCard_image, back_image_filename, background_color, center_card[0] + pos[1], center_card[1] + pos[0])
-#		transparent2(redBackCard_image, back_image_filename, background_color, center_card[0] + pos[1], center_card[1] + pos[0])
-#		transparent2(redBackCard_image, back_image_filename, background_color, center_card[0] + pos[1], center_card[1] + pos[0])
+	while startFlag == 4:
+
+		dealer_hold = game_ready_dealer()
+		player_hold = game_ready_player()
+
+		default_card_pos0 = [redBackCard_image_filename, center_card[0], center_card[1]]
+		default_card_pos1 = [redBackCard_image_filename, center_card[0] - pos[1], center_card[1] + pos[0]]
+		default_card_pos2 = [redBackCard_image_filename, center_card[0] + pos[1], center_card[1] + pos[0]]
+		default_card_pos3 = [redBackCard_image_filename, center_card[0] + pos[1], center_card[1] - pos[0]]
+		default_card_pos4 = [redBackCard_image_filename, center_card[0] - pos[1], center_card[1] - pos[0]]
+
+		card_pos_info = [default_card_pos0, default_card_pos1, default_card_pos2, default_card_pos3, default_card_pos4]
+
+		transparent3(card_pos_info, card2img(player_hold[0]), background_color, 1, 50) #left downside
+		transparent3(card_pos_info, card2img(player_hold[1]), background_color, 2, 50) #right downside
+		transparent3(card_pos_info, card2img(dealer_hold[0]), background_color, 3, 50) #right upside
+
+		startFlag = 5
+		reset()
+
