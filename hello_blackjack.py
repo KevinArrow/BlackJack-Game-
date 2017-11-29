@@ -253,7 +253,9 @@ def transparent3(fade_image_filename, back_image_filename, color, change_num, fa
 def transparent_activate(surface, fade_speed, fadeInOut):
 	uialpha = pygame.surfarray.pixels_alpha(surface)
 	if fadeInOut == 1:
-		uialpha /= fade_speed
+		for w in range(len(uialpha)):
+			for h in range(len(uialpha[0])):
+				uialpha[w][h] /= fade_speed
 	else:
 		uialpha *= 1.2
 	del uialpha
@@ -611,9 +613,9 @@ pygame.display.update()
 
 #-----------------------------Start Up-----------------------------------------------#
 
-transparent2(loading_image_filename, "NONE", background_color, 0, 0)
-pygame.display.update()
-Kev_sleep_millisecond2(500)
+#transparent2(loading_image_filename, "NONE", background_color, 0, 0)
+#pygame.display.update()
+#Kev_sleep_millisecond2(500)
 
 screen.blit(editor_image, ((game_window[0] - editor_image.get_width()) / 2, (game_window[1] - editor_image.get_height()) / 3))
 pygame.display.update()
