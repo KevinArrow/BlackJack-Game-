@@ -28,8 +28,8 @@ pygame.display.set_caption("-Simple Blackjack-")
 loading_image_filename = "./img/loading.png"
 debug_image_filename = './img/card/half_png/x01.png'
 background_image_filename = "./img/green.png"
-start_image_filename = "./img/start.png"
-editor_image_filename = "./img/editor.png"
+start_image_filename = "./img/start2.png"
+editor_image_filename = "./img/editor2.png"
 startButton_image_filename = "./img/startButton.png"
 redBackCard_image_filename = "./img/card/half_png/z02.png"
 draw_image_filename = "./img/Draw.png"
@@ -37,6 +37,8 @@ youwin_image_filename = "./img/YouWin.png"
 youlose_image_filename = "./img/YouLose.png"
 blackjack_image_filename = "./img/BlackJack.png"
 bust_image_filename = "./img/Bust.png"
+hitorstand_image_filename = "./img/HitorStand.png"
+
 
 #loading images
 
@@ -52,6 +54,7 @@ youwin_image = pygame.image.load(youwin_image_filename).convert_alpha()
 youlose_image = pygame.image.load(youlose_image_filename).convert_alpha()
 blackjack_image = pygame.image.load(blackjack_image_filename).convert_alpha()
 bust_image = pygame.image.load(bust_image_filename).convert_alpha()
+hitorstand_image = pygame.image.load(hitorstand_image_filename).convert_alpha()
 
 #screen update
 
@@ -122,6 +125,11 @@ def Kev_sleep_second(time):	#only allowed integer
 	clock = datetime.datetime.today()
 	clock_change = clock
 
+	event = pygame.event.poll()	#Get event
+	for event in pygame.event.get():
+		if event.type == QUIT:
+			exit()
+
 	while finishFlag== 0:
 		clock = datetime.datetime.today()
 		if clock.second != clock_change.second :
@@ -136,6 +144,11 @@ def Kev_sleep_millisecond(time):	#maximum is 999
 	finishFlag = 0
 	clock = datetime.datetime.today()
 	clock_change = clock
+
+	event = pygame.event.poll()	#Get event
+	for event in pygame.event.get():
+		if event.type == QUIT:
+			exit()
 
 	if clock_change.microsecond + time > 1000000:
         	clock_change = clock_change.microsecond + time - 1000000
@@ -154,6 +167,12 @@ def centerPos(image_filename):
 	return pos
 
 def transparent2(fade_image_filename, back_image_filename, color, x_pos, y_pos):	#color has to be list of 3
+
+	event = pygame.event.poll()	#Get event
+	for event in pygame.event.get():
+		if event.type == QUIT:
+			exit()
+
 	fade_image = pygame.image.load(fade_image_filename).convert_alpha()
 	if back_image_filename != "NONE":
 		back_image = pygame.image.load(back_image_filename).convert_alpha()
@@ -203,6 +222,20 @@ def transparent_activate(surface, fade_speed, fadeInOut):
 		uialpha *= 1.2
 	del uialpha
 
+def setAllCardPos():
+	global card_pos_info
+	global player_pos_info
+	global dealer_pos_info
+
+	card_pos_info = []
+	default_pos = [redBackCard_image_filename, center_card[0], center_card[1]]
+	card_pos_info.append(default_pos)
+
+	for val in player_pos_info:
+		card_pos_info.append(val)
+	for val in dealer_pos_info:
+		card_pos_info.append(val)
+
 def allShow(color):	#all images has to be list type
 	global card_pos_info
 	image_name = []
@@ -213,6 +246,100 @@ def allShow(color):	#all images has to be list type
 	screen.fill((color[0], color[1], color[2]))
 	for i in range(len(card_pos_info)):
 		screen.blit(image_name[i], (card_pos_info[i][1], card_pos_info[i][2]))
+
+def get_one_card(who):	#player = 0, dealer = 1
+	global card_pos_info
+	global now
+	global player_hold
+	global dealer_hold
+	global player_pos_info
+	global dealer_pos_info
+	check = 0
+	speed = 4
+
+	if who == 0:
+		player_card_info = [redBackCard_image_filename, center_card[0], center_card[1]]
+		player_hold.append(deck[deck_num[now]])
+		card_num = len(player_hold)
+		player_pos_info.append(player_card_info)
+
+		while player_pos_info[card_num - 1][1] < (game_window[0] - redBackCard_image.get_width()) / 2 + (card_num - 1) * (redBackCard_image.get_width() / 2 + 5):
+			player_pos_info[card_num - 1][1] += speed
+			setAllCardPos()
+			allShow(background_color)
+			#pygame.time.wait(1)
+			pygame.display.update()
+			if (game_window[0] - redBackCard_image.get_width()) / 2 + (card_num - 1) * (redBackCard_image.get_width() / 2 + 5) - player_pos_info[card_num - 1][1] < speed:
+				player_pos_info[card_num - 1][1] = (game_window[0] - redBackCard_image.get_width()) / 2 + (card_num - 1) * (redBackCard_image.get_width() / 2 + 5)
+				setAllCardPos()
+				allShow(background_color)
+				pygame.display.update()
+
+
+		while player_pos_info[card_num - 1][2] < game_window[1] - redBackCard_image.get_height():
+			player_pos_info[card_num - 1][2] += speed
+			if check != (redBackCard_image.get_width() / 2 + 5):
+				for val in range(len(player_pos_info) - 1):
+					player_pos_info[val][1] -= 1
+				check += 1
+
+			#pygame.time.wait(1)
+			allShow(background_color)
+			setAllCardPos()
+			pygame.display.update()
+
+			if game_window[1] - redBackCard_image.get_height() - player_pos_info[card_num - 1][2] < speed:
+				player_pos_info[card_num - 1][2] = game_window[1] - redBackCard_image.get_height()
+				setAllCardPos()
+				allShow(background_color)
+				pygame.display.update()
+
+
+#		player_card_info.append((game_window[0] - redBackCard_image.get_width()) / 2 + (card_num - 1) * (redBackCard_image.get_width() / 2 + 5))
+#		player_card_info.append(game_window[1] - redBackCard_image.get_height())
+
+#		for val in range(len(player_pos_info)):5)
+#			player_pos_info[val][1] -= (redBackCard_image.get_width() / 2 +
+		setAllCardPos()
+
+	else:
+		dealer_card_info = [redBackCard_image_filename, center_card[0], center_card[1]]
+		dealer_hold.append(deck[deck_num[now]])
+		card_num = len(dealer_hold)
+		dealer_pos_info.append(dealer_card_info)
+
+		while dealer_pos_info[card_num - 1][1] < (game_window[0] - redBackCard_image.get_width()) / 2 + (card_num - 1) * (redBackCard_image.get_width() / 2 + 5):
+			dealer_pos_info[card_num - 1][1] += speed
+			setAllCardPos()
+			allShow(background_color)
+			#pygame.time.wait(1)
+			pygame.display.update()
+			if (game_window[0] - redBackCard_image.get_width()) / 2 + (card_num - 1) * (redBackCard_image.get_width() / 2 + 5) - dealer_pos_info[card_num - 1][1] < speed:
+				dealer_pos_info[card_num - 1][1] = (game_window[0] - redBackCard_image.get_width()) / 2 + (card_num - 1) * (redBackCard_image.get_width() / 2 + 5)
+				setAllCardPos()
+				allShow(background_color)
+				pygame.display.update()
+
+
+		while dealer_pos_info[card_num - 1][2] < 0:
+			dealer_pos_info[card_num - 1][2] -= speed
+			if check != (redBackCard_image.get_width() / 2 + 5):
+				for val in range(len(dealer_pos_info) - 1):
+					dealer_pos_info[val][1] -= 1
+				check += 1
+
+			#pygame.time.wait(1)
+			allShow(background_color)
+			setAllCardPos()
+			pygame.display.update()
+
+			if dealer_pos_info[card_num - 1][2] < speed:
+				dealer_pos_info[card_num - 1][2] = 0
+				setAllCardPos()
+				allShow(background_color)
+				pygame.display.update()
+
+		setAllCardPos()
 
 def total(hold):
 	ace = 0
@@ -241,7 +368,6 @@ def shuffle_check():
 		now = 0
 		random.shuffle(deck_num)
 		print "\n---Deck Shuffled---\n"
-		time.sleep(1)
 
 def game_ready_dealer():
 	global now
@@ -312,8 +438,6 @@ def dealer_AI(hold):
 	print "--Player's Hand--"
 	show(1, player_hold)
 	print 		#Line break for easily viewable
-	time.sleep(1)
-
 
 	while result < 17:
 		hold.append(deck[deck_num[now]])
@@ -326,7 +450,6 @@ def dealer_AI(hold):
 		show(1, player_hold)
 		print 		#Line break for easily viewable
 		shuffle_check()
-		time.sleep(1)
 
 	return hold
 
@@ -500,7 +623,7 @@ while True:
 		screen.blit((Card3_image[card_change]), (x1, abs(y1 - game_window[1] + redBackCard_image.get_height())))
 		screen.blit((Card4_image[card_change]), (abs(x1 - game_window[0]) - redBackCard_image.get_width(), abs(y1 - game_window[1] + redBackCard_image.get_height())))
 
-		pygame.time.delay(5)
+		pygame.time.delay(3)
 		pygame.display.update()
 
 	if startFlag == 2:	#transparent from card to backside
@@ -527,13 +650,13 @@ while True:
 			print "\n---Deck Shuffled---\n"
 			time.sleep(1)
 
-		gameCardPos_x = [game_window[0] / 2 - redBackCard_image.get_width() - 10, game_window[0] / 2 + 10]
-		gameCardPos_y = [game_window[1] - redBackCard_image.get_height(), game_window[1] - redBackCard_image.get_height()]
+#		gameCardPos_x = [game_window[0] / 2 - redBackCard_image.get_width() - 10, game_window[0] / 2 + 10]
+#		gameCardPos_y = [game_window[1] - redBackCard_image.get_height(), game_window[1] - redBackCard_image.get_height()]
 		pos = [0, 0]
-		i += 1
+#		i += 1
 
-		gameCardPos_x.append(center_card[0])
-		gameCardPos_y.append(game_window[1] - redBackCard_image.get_height())
+#		gameCardPos_x.append(center_card[0])
+#		gameCardPos_y.append(game_window[1] - redBackCard_image.get_height())
 
 		for val in range((game_window[1] - redBackCard_image.get_height()) / 2):
 			pos[0] += 1	#using pos in different way
@@ -566,14 +689,17 @@ while True:
 		default_card_pos0 = [redBackCard_image_filename, center_card[0], center_card[1]]
 		default_card_pos1 = [redBackCard_image_filename, center_card[0] - pos[1], center_card[1] + pos[0]]
 		default_card_pos2 = [redBackCard_image_filename, center_card[0] + pos[1], center_card[1] + pos[0]]
-		default_card_pos3 = [redBackCard_image_filename, center_card[0] + pos[1], center_card[1] - pos[0]]
-		default_card_pos4 = [redBackCard_image_filename, center_card[0] - pos[1], center_card[1] - pos[0]]
+		default_card_pos3 = [redBackCard_image_filename, center_card[0] - pos[1], center_card[1] - pos[0]]
+		default_card_pos4 = [redBackCard_image_filename, center_card[0] + pos[1], center_card[1] - pos[0]]
 
 		card_pos_info = [default_card_pos0, default_card_pos1, default_card_pos2, default_card_pos3, default_card_pos4]
 
 		transparent3(card_pos_info, card2img(player_hold[0]), background_color, 1, 50) #left downside
 		transparent3(card_pos_info, card2img(player_hold[1]), background_color, 2, 50) #right downside
-		transparent3(card_pos_info, card2img(dealer_hold[0]), background_color, 3, 50) #right upside
+		transparent3(card_pos_info, card2img(dealer_hold[0]), background_color, 3, 50) #left upside
+
+		player_pos_info = [default_card_pos1, default_card_pos2]
+		dealer_pos_info = [default_card_pos3, default_card_pos4]
 
 		startFlag = 5
 		reset()
@@ -603,7 +729,7 @@ while True:
 			pygame.time.delay(2000)
 
 			player_action = 2
-			startFlag = 6
+			startFlag = 99
 
 		#elif blackjack[0] == 1:	#Dealer has blackjack
 		#	print "--Dealer's Hand--"
@@ -633,7 +759,39 @@ while True:
 			pygame.time.delay(2000)
 
 			player_action = 2
-			startFlag = 6
+			startFlag = 99
 		else:
 			startFlag = 6
-		
+
+	while startFlag == 6 or startFlag == 1:	#player's turn
+		allShow(background_color)
+		screen.blit(hitorstand_image, ((game_window[0] - hitorstand_image.get_width()) / 2, (game_window[1] - hitorstand_image.get_height()) / 2))
+		pygame.display.update()
+
+		event = pygame.event.poll()	#Get event
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				startFlag = 0
+
+		if event.type == KEYDOWN:
+			if event.key == K_h:
+				get_one_card(0)	#player = 0, dealer = 1
+				transparent3(card_pos_info, card2img(player_hold[len(player_hold) - 1]), background_color, len(player_hold), 50)
+				if total(player_hold) > 21:
+					allShow(background_color)
+					screen.blit(bust_image, ((game_window[0] - bust_image.get_width()) / 2, (game_window[1] - bust_image.get_height()) / 2))
+					pygame.display.update()
+					pygame.time.delay(1000)
+					startFlag += 1
+
+			elif event.key == K_s:
+				startFlag += 1
+			else:
+				print "Not allowed"
+
+
+
+
+#	while startFlag == 99:
+
+
