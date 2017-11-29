@@ -30,6 +30,7 @@ background_image_filename = "./img/green.png"
 start_image_filename = "./img/start.png"
 editor_image_filename = "./img/editor.png"
 startButton_image_filename = "./img/startButton.png"
+redBackCard_image_filename = "./img/card/half_png/z02.png"
 
 #loading images
 
@@ -39,8 +40,9 @@ background_image = pygame.image.load(background_image_filename).convert()
 start_image = pygame.image.load(start_image_filename).convert_alpha()
 editor_image = pygame.image.load(editor_image_filename).convert_alpha()
 startButton_image = pygame.image.load(startButton_image_filename).convert_alpha()
+redBackCard_image = pygame.image.load(redBackCard_image_filename).convert_alpha()
 
-#screen setting
+#screen update
 
 screen.blit(loading_image, (0, 0))
 pygame.display.update()
@@ -60,16 +62,16 @@ for val in deck:
 deck_num = range(0, count)
 random.shuffle(deck_num)
 
-
+'''
 #debug deck
-#card1 = ["S,10","S,10","S,10","S,10","S,5","S,5"]
-#count = 0
-#for val in card1:
-#	count += 1
-#deck = card1
-#deck_num = range(0,count)
+card1 = ["S,10","S,10","S,10","S,10","S,5","S,5"]
+count = 0
+for val in card1:
+	count += 1
+deck = card1
+deck_num = range(0,count)
 #debug deck done
-
+'''
 now = 0
 blackjack = [0, 0]
 
@@ -103,24 +105,55 @@ for val in range(13):
 
 #-------------------------------------Load End--------------------------------#
 
+def Kev_sleep_second(time):	#only allowed integer
+	finishFlag = 0
+	time_passed = 0
+	clock = datetime.datetime.today()
+	clock_change = clock
 
-def transparent(fade_image, fade_speed, count, fadeInOut, R_color, G_color, B_color): #Default fade_speed = 1.5, count = 10
-	pygame.init()
+	while finishFlag== 0:
+		clock = datetime.datetime.today()
+		if clock.second != clock_change.second :
+		        time_passed += 1
+        	        clock_change = clock
+		if time_passed == time:
+			finishFlag = 1
 
-	screen = pygame.display.set_mode((game_window[0], game_window[1]), 0, 32)
+def Kev_sleep_millisecond(time):	#maximum is 999
+	time *= 1000
+	time_passed = 0
+	finishFlag = 0
+	clock = datetime.datetime.today()
+	clock_change = clock
 
-	alpha_surface = pygame.image.load(fade_image).convert_alpha()
+	if clock_change.microsecond + time > 1000000:
+        	clock_change = clock_change.microsecond + time - 1000000
+	else:
+	        clock_change = clock_change.microsecond + time
 
-	for val in range(count):
-		pygame.time.wait(100)
+	while finishFlag== 0:
+		clock = datetime.datetime.today()
+
+		if clock.microsecond == clock_change:
+			finishFlag = 1
+
+
+
+
+def transparent2(fade_image_filename, back_image_filename, R_color, G_color, B_color, x_pos, y_pos):
+	fade_image = pygame.image.load(fade_image_filename).convert_alpha()
+	if back_image_filename != "NONE":
+		back_image = pygame.image.load(back_image_filename).convert_alpha()
+
+	for val in range(10):  #transparent
+		Kev_sleep_millisecond(100)
 		screen.fill((R_color, G_color, B_color))
-		transparent_activate(alpha_surface, fade_speed, fadeInOut)
-		screen.blit(alpha_surface,(0,0))
+		#pygame.time.wait(100)
+		transparent_activate(fade_image, 1.5, 1)
+		if back_image_filename != "NONE":
+			screen.blit(back_image, (x_pos, y_pos))
+		screen.blit(fade_image, (x_pos, y_pos))
 		pygame.display.update()
-
-		for e in pygame.event.get():
-			if e.type == QUIT:
-				return
 
 def transparent_activate(surface, fade_speed, fadeInOut):
 	uialpha = pygame.surfarray.pixels_alpha(surface)
@@ -276,14 +309,14 @@ def gameResult(dealer_hold, player_hold):
 	else:
 		print "You Lose"
 
-time.sleep(2)
+time.sleep(1)
 
 pygame.display.update()
 
 #-----------------------------Start Up-----------------------------------------------#
 
-transparent(loading_image_filename, 1.5, 10, 1, background_color[0], background_color[1], background_color[2])
-
+transparent2(loading_image_filename, "NONE", background_color[0], background_color[1], background_color[2], 0, 0)
+#transparent(loading_image_filename, 1.5, 10, 1, background_color[0], background_color[1], background_color[2])
 pygame.display.update()
 time.sleep(0.5)
 
@@ -389,9 +422,42 @@ while True:
 			if event.key == K_SPACE:
 				startFlag = 1
 
- #	while startFlag == 1:
+ 	while startFlag == 1:
+		if x1 > game_window[0] / 2 -  debug_image.get_width() / 2:
+			x1 -= 1
+		elif x1 < game_window[0] / 2 - debug_image.get_width() / 2:
+			x1 += 1
+		if y1 > game_window[1] / 2 -  debug_image.get_height() / 2:
+			y1 -= 1
+		elif y1 < game_window[1] / 2 - debug_image.get_height() / 2:
+			y1 += 1
+		if x1 == game_window[0] / 2 -  debug_image.get_width() / 2 and y1 == game_window[1] / 2 -  debug_image.get_height() / 2:
+			startFlag = 2
+
+		screen.blit(background_image, (0, 0))
+
+		screen.blit((Card1_image[card_change]), (x1, y1))
+		screen.blit((Card2_image[card_change]), (abs(x1 - game_window[0]) - debug_image.get_width(), y1))
+		screen.blit((Card3_image[card_change]), (x1, abs(y1 - game_window[1] + debug_image.get_height())))
+		screen.blit((Card4_image[card_change]), (abs(x1 - game_window[0]) - debug_image.get_width(), abs(y1 - game_window[1] + debug_image.get_height())))
+
+		pygame.time.delay(5)
+		pygame.display.update()
+
+	if startFlag == 2:
+		transparent2(card2img(Card1[card_change]), redBackCard_image_filename, background_color[0], background_color[1], background_color[2], game_window[0] / 2 - debug_image.get_width() / 2,  game_window[1] / 2 - debug_image.get_height() / 2)
+		startFlag = 3
+#	for val in range(10):  #transparent
+#		Kev_sleep_millisecond(100)
+#		#pygame.time.wait(100)
+#		transparent_activate(Card1_image[card_change], 1.5, 1)
+#		screen.blit(redBackCard_image, (game_window[0] / 2 - debug_image.get_width() / 2,  game_window[1] / 2 - debug_image.get_height() / 2))
+#		screen.blit(Card1_image[card_change], (game_window[0] / 2 - debug_image.get_width() / 2,  game_window[1] / 2 - debug_image.get_height() / 2))
 
 
+	#time.second(1)
+	#pygame.time.delay(1000)
+	print "Success"
 
-#-------------------------------------------------------------main start-------------------------------------------#
+#--------------------------------------------main start-------------------------------------------#
 
