@@ -11,6 +11,7 @@ from PIL import Image
 from sys import exit
 from pygame.locals import *
 
+
 #system setting
 
 pygame.init()
@@ -59,16 +60,16 @@ for val in deck:
 deck_num = range(0, count)
 random.shuffle(deck_num)
 
-'''
+
 #debug deck
-card1 = ["S,10","S,10","S,10","S,10","S,5","S,5"]
-count = 0
-for val in card1:
-	count += 1
-deck = card1
-deck_num = range(0,count)
+#card1 = ["S,10","S,10","S,10","S,10","S,5","S,5"]
+#count = 0
+#for val in card1:
+#	count += 1
+#deck = card1
+#deck_num = range(0,count)
 #debug deck done
-'''
+
 now = 0
 blackjack = [0, 0]
 
@@ -163,7 +164,7 @@ def game_ready_dealer():
 	global now
 	global deck
 	global deck_num
-	global blackjack
+    	global blackjack
 
 	blackjack = [0,0]
 	dealer_open = deck[deck_num[now]]
@@ -309,9 +310,10 @@ y1 = 0.0
 #pos2 = 1
 #x2 = 0.0 + game_window[0] - debug_image.get_width()
 #y2 = 0.0
+startFlag = 0
 
 while True:
-	while True:
+	while startFlag == 0:
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				exit()
@@ -349,20 +351,20 @@ while True:
 		if card_change > 12:
 			card_change = 0
 
-	#	if pos2 == 0:
-	#		x2 += 1
-	#		if x2 + debug_image.get_width() > game_window[0]:
-	#			pos2 += 1
-	#	elif pos2 == 1:
-	#			pos2 += 1
-	#	elif pos2 == 2:
-	#		x2 -= 1
-	#		if x2 == 0:
-	#			pos2 += 1
-	#	elif pos2 == 3:
-	#		y2 -= 1
-	#		if y2 == 0:
-	#			pos2 = 0
+#		if pos2 == 0:
+#			x2 += 1
+#			if x2 + debug_image.get_width() > game_window[0]:
+#				pos2 += 1
+#		elif pos2 == 1:
+#				pos2 += 1
+#		elif pos2 == 2:
+#			x2 -= 1
+#			if x2 == 0:
+#				pos2 += 1
+#		elif pos2 == 3:
+#			y2 -= 1
+#			if y2 == 0:
+#				pos2 = 0
 
 		screen.blit((Card1_image[card_change]), (x1, y1))
 		screen.blit((Card2_image[card_change]), (abs(x1 - game_window[0]) - debug_image.get_width(), y1))
@@ -372,6 +374,24 @@ while True:
 	#	screen.blit(debug_image, (abs(x2 - game_window[0]) - debug_image.get_width(), abs(y2 - game_window[1] + debug_image.get_height())))
 		screen.blit(start_image, ((game_window[0] - start_image.get_width()) / 2, (game_window[1] - start_image.get_height()) / 3))
 
-		time.sleep(0.005)
+		pygame.time.delay(5)
 		pygame.display.update()
+
+		event = pygame.event.poll()	#Get event
+
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				exit()
+
+		if event.type == KEYDOWN:
+			if event.key == K_ESCAPE:
+				exit()
+			if event.key == K_SPACE:
+				startFlag = 1
+
+ #	while startFlag == 1:
+
+
+
+#-------------------------------------------------------------main start-------------------------------------------#
 
