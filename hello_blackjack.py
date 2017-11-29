@@ -137,17 +137,19 @@ def Kev_sleep_millisecond(time):	#maximum is 999
 		if clock.microsecond == clock_change:
 			finishFlag = 1
 
+def centerPos(image_filename):
+	image = pygame.image.load(image_filename).convert_alpha()
+	pos = [(game_window[0] - image.get_width()) / 2, (game_window[1] - image.get_height()) / 2]
+	return pos
 
-
-
-def transparent2(fade_image_filename, back_image_filename, R_color, G_color, B_color, x_pos, y_pos):
+def transparent2(fade_image_filename, back_image_filename, color, x_pos, y_pos):	#color has to be list of 3
 	fade_image = pygame.image.load(fade_image_filename).convert_alpha()
 	if back_image_filename != "NONE":
 		back_image = pygame.image.load(back_image_filename).convert_alpha()
 
 	for val in range(10):  #transparent
 		Kev_sleep_millisecond(100)
-		screen.fill((R_color, G_color, B_color))
+		screen.fill((color[0], color[1], color[2]))
 		#pygame.time.wait(100)
 		transparent_activate(fade_image, 1.5, 1)
 		if back_image_filename != "NONE":
@@ -309,13 +311,22 @@ def gameResult(dealer_hold, player_hold):
 	else:
 		print "You Lose"
 
+def reset():
+	global i
+	global j
+	global val
+
+	i = 0
+	j = 0
+	val = 0
+
 time.sleep(1)
 
 pygame.display.update()
 
 #-----------------------------Start Up-----------------------------------------------#
 
-transparent2(loading_image_filename, "NONE", background_color[0], background_color[1], background_color[2], 0, 0)
+transparent2(loading_image_filename, "NONE", background_color, 0, 0)
 #transparent(loading_image_filename, 1.5, 10, 1, background_color[0], background_color[1], background_color[2])
 pygame.display.update()
 time.sleep(0.5)
@@ -341,7 +352,7 @@ card_change = 0
 x1 = 0.0
 y1 = 0.0
 #pos2 = 1
-#x2 = 0.0 + game_window[0] - debug_image.get_width()
+#x2 = 0.0 + game_window[0] - redBackCard_image.get_width()
 #y2 = 0.0
 startFlag = 0
 
@@ -359,13 +370,13 @@ while True:
 
 		if pos1 == 0:
 			x1 += 1
-			if x1 + debug_image.get_width() > game_window[0]:
+			if x1 + redBackCard_image.get_width() > game_window[0]:
 				pos1 += 1
 				card_change += 1
 
 		elif pos1 == 1:
 			y1 += 1
-			if y1 + debug_image.get_height() > game_window[1]:
+			if y1 + redBackCard_image.get_height() > game_window[1]:
 				pos1 += 1
 				card_change += 1
 
@@ -386,7 +397,7 @@ while True:
 
 #		if pos2 == 0:
 #			x2 += 1
-#			if x2 + debug_image.get_width() > game_window[0]:
+#			if x2 + redBackCard_image.get_width() > game_window[0]:
 #				pos2 += 1
 #		elif pos2 == 1:
 #				pos2 += 1
@@ -400,11 +411,11 @@ while True:
 #				pos2 = 0
 
 		screen.blit((Card1_image[card_change]), (x1, y1))
-		screen.blit((Card2_image[card_change]), (abs(x1 - game_window[0]) - debug_image.get_width(), y1))
-		screen.blit((Card3_image[card_change]), (x1, abs(y1 - game_window[1] + debug_image.get_height())))
-		screen.blit((Card4_image[card_change]), (abs(x1 - game_window[0]) - debug_image.get_width(), abs(y1 - game_window[1] + debug_image.get_height())))
-	#	screen.blit(debug_image, (x2, y2))
-	#	screen.blit(debug_image, (abs(x2 - game_window[0]) - debug_image.get_width(), abs(y2 - game_window[1] + debug_image.get_height())))
+		screen.blit((Card2_image[card_change]), (abs(x1 - game_window[0]) - redBackCard_image.get_width(), y1))
+		screen.blit((Card3_image[card_change]), (x1, abs(y1 - game_window[1] + redBackCard_image.get_height())))
+		screen.blit((Card4_image[card_change]), (abs(x1 - game_window[0]) - redBackCard_image.get_width(), abs(y1 - game_window[1] + redBackCard_image.get_height())))
+	#	screen.blit(redBackCard_image, (x2, y2))
+	#	screen.blit(redBackCard_image, (abs(x2 - game_window[0]) - redBackCard_image.get_width(), abs(y2 - game_window[1] + redBackCard_image.get_height())))
 		screen.blit(start_image, ((game_window[0] - start_image.get_width()) / 2, (game_window[1] - start_image.get_height()) / 3))
 
 		pygame.time.delay(5)
@@ -423,41 +434,78 @@ while True:
 				startFlag = 1
 
  	while startFlag == 1:
-		if x1 > game_window[0] / 2 -  debug_image.get_width() / 2:
+		if x1 > game_window[0] / 2 -  redBackCard_image.get_width() / 2:
 			x1 -= 1
-		elif x1 < game_window[0] / 2 - debug_image.get_width() / 2:
+		elif x1 < game_window[0] / 2 - redBackCard_image.get_width() / 2:
 			x1 += 1
-		if y1 > game_window[1] / 2 -  debug_image.get_height() / 2:
+		if y1 > game_window[1] / 2 -  redBackCard_image.get_height() / 2:
 			y1 -= 1
-		elif y1 < game_window[1] / 2 - debug_image.get_height() / 2:
+		elif y1 < game_window[1] / 2 - redBackCard_image.get_height() / 2:
 			y1 += 1
-		if x1 == game_window[0] / 2 -  debug_image.get_width() / 2 and y1 == game_window[1] / 2 -  debug_image.get_height() / 2:
+		if x1 == game_window[0] / 2 -  redBackCard_image.get_width() / 2 and y1 == game_window[1] / 2 -  redBackCard_image.get_height() / 2:
 			startFlag = 2
 
 		screen.blit(background_image, (0, 0))
 
 		screen.blit((Card1_image[card_change]), (x1, y1))
-		screen.blit((Card2_image[card_change]), (abs(x1 - game_window[0]) - debug_image.get_width(), y1))
-		screen.blit((Card3_image[card_change]), (x1, abs(y1 - game_window[1] + debug_image.get_height())))
-		screen.blit((Card4_image[card_change]), (abs(x1 - game_window[0]) - debug_image.get_width(), abs(y1 - game_window[1] + debug_image.get_height())))
+		screen.blit((Card2_image[card_change]), (abs(x1 - game_window[0]) - redBackCard_image.get_width(), y1))
+		screen.blit((Card3_image[card_change]), (x1, abs(y1 - game_window[1] + redBackCard_image.get_height())))
+		screen.blit((Card4_image[card_change]), (abs(x1 - game_window[0]) - redBackCard_image.get_width(), abs(y1 - game_window[1] + redBackCard_image.get_height())))
 
 		pygame.time.delay(5)
 		pygame.display.update()
 
 	if startFlag == 2:
-		transparent2(card2img(Card1[card_change]), redBackCard_image_filename, background_color[0], background_color[1], background_color[2], game_window[0] / 2 - debug_image.get_width() / 2,  game_window[1] / 2 - debug_image.get_height() / 2)
+		center_card = centerPos(redBackCard_image_filename)
+		transparent2(card2img(Card1[card_change]), redBackCard_image_filename, background_color, center_card[0],  center_card[1])
 		startFlag = 3
+
+		if startFlag == 3:
+			reset()
+
 #	for val in range(10):  #transparent
 #		Kev_sleep_millisecond(100)
 #		#pygame.time.wait(100)
 #		transparent_activate(Card1_image[card_change], 1.5, 1)
-#		screen.blit(redBackCard_image, (game_window[0] / 2 - debug_image.get_width() / 2,  game_window[1] / 2 - debug_image.get_height() / 2))
-#		screen.blit(Card1_image[card_change], (game_window[0] / 2 - debug_image.get_width() / 2,  game_window[1] / 2 - debug_image.get_height() / 2))
-
-
-	#time.second(1)
-	#pygame.time.delay(1000)
-	print "Success"
+#		screen.blit(redBackCard_image, (game_window[0] / 2 - redBackCard_image.get_width() / 2,  game_window[1] / 2 - redBackCard_image.get_height() / 2))
+#		screen.blit(Card1_image[card_change], (game_window[0] / 2 - redBackCard_image.get_width() / 2,  game_window[1] / 2 - redBackCard_image.get_height() / 2))
 
 #--------------------------------------------main start-------------------------------------------#
 
+	while startFlag == 3:
+		gameCardPos_x = [game_window[0] / 2 - redBackCard_image.get_width() - 10, game_window[0] / 2 + 10]
+		gameCardPos_y = [game_window[1] - redBackCard_image.get_height(), game_window[1] - redBackCard_image.get_height()]
+		pos = [0, 0]
+		i += 1
+
+		gameCardPos_x.append(center_card[0])
+		gameCardPos_y.append(game_window[1] - redBackCard_image.get_height())
+
+		for val in range((game_window[1] - redBackCard_image.get_height()) / 2):
+			pos[0] += 1	#using pos in different way
+			screen.blit(background_image, (0, 0))
+			screen.blit((redBackCard_image), (center_card[0], center_card[1]))
+			screen.blit((redBackCard_image), (center_card[0], center_card[1] + pos[0]))
+			screen.blit((redBackCard_image), (center_card[0], center_card[1] - pos[0]))
+			pygame.time.delay(1)
+			pygame.display.update()
+
+		while pos[1] < 5 + redBackCard_image.get_width() / 2: #using pos in different way
+			pos[1] += 1
+			screen.blit(background_image, (0, 0))
+			screen.blit((redBackCard_image), (center_card[0], center_card[1]))
+			screen.blit((redBackCard_image), (center_card[0] + pos[1], center_card[1] + pos[0]))	#right downside
+			screen.blit((redBackCard_image), (center_card[0] + pos[1], center_card[1] - pos[0]))	#right upside
+			screen.blit((redBackCard_image), (center_card[0] - pos[1], center_card[1] + pos[0]))	#left downside
+			screen.blit((redBackCard_image), (center_card[0] - pos[1], center_card[1] - pos[0]))	#left upside
+			pygame.time.delay(1)
+			pygame.display.update()
+
+		startFlag = 4
+		reset()
+
+#	while startFlag == 4:
+#		transparent2(redBackCard_image, back_image_filename, background_color, center_card[0] + pos[1], center_card[1] + pos[0])
+#		transparent2(redBackCard_image, back_image_filename, background_color, center_card[0] + pos[1], center_card[1] + pos[0])
+#		transparent2(redBackCard_image, back_image_filename, background_color, center_card[0] + pos[1], center_card[1] + pos[0])
+#		transparent2(redBackCard_image, back_image_filename, background_color, center_card[0] + pos[1], center_card[1] + pos[0])
