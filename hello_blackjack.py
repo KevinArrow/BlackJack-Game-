@@ -1,6 +1,6 @@
 #!/usr/bin/evn python
 
-#too much image load
+#too much image load...
 
 import pygame
 import sys
@@ -12,7 +12,6 @@ from numpy import array
 from PIL import Image
 from sys import exit
 from pygame.locals import *
-
 
 #system setting
 
@@ -33,6 +32,11 @@ start_image_filename = "./img/start.png"
 editor_image_filename = "./img/editor.png"
 startButton_image_filename = "./img/startButton.png"
 redBackCard_image_filename = "./img/card/half_png/z02.png"
+draw_image_filename = "./img/Draw.png"
+youwin_image_filename = "./img/YouWin.png"
+youlose_image_filename = "./img/YouLose.png"
+blackjack_image_filename = "./img/BlackJack.png"
+bust_image_filename = "./img/Bust.png"
 
 #loading images
 
@@ -43,6 +47,11 @@ start_image = pygame.image.load(start_image_filename).convert_alpha()
 editor_image = pygame.image.load(editor_image_filename).convert_alpha()
 startButton_image = pygame.image.load(startButton_image_filename).convert_alpha()
 redBackCard_image = pygame.image.load(redBackCard_image_filename).convert_alpha()
+draw_image = pygame.image.load(draw_image_filename).convert_alpha()
+youwin_image = pygame.image.load(youwin_image_filename).convert_alpha()
+youlose_image = pygame.image.load(youlose_image_filename).convert_alpha()
+blackjack_image = pygame.image.load(blackjack_image_filename).convert_alpha()
+bust_image = pygame.image.load(bust_image_filename).convert_alpha()
 
 #screen update
 
@@ -64,23 +73,18 @@ for val in deck:
 deck_num = range(0, count)
 random.shuffle(deck_num)
 
-'''
 #debug deck
-card1 = ["S,10","S,10","S,10","S,10","S,5","S,5"]
-count = 0
-for val in card1:
-	count += 1
-deck = card1
-deck_num = range(0,count)
+#card1 = ["S,10","S,10","S,10","S,01","S,05","S,05"]
+#lined_deck = card1
+#count = 0
+#for val in card1:
+#	count += 1
+#deck = card1
+#deck_num = range(0,count)
 #debug deck done
-'''
+
 now = 0
 blackjack = [0, 0]
-
-def card2img(card):
-	card_id = card.split(",")
-	card_img = "./img/card/half_png/" + card_id[0].lower() + card_id[1] + ".png"
-	return card_img
 
 #-------------------------------------Load card deck--------------------------------
 #Card1_image = range(len(Card1))
@@ -98,6 +102,11 @@ Card1_image = []
 Card2_image = []
 Card3_image = []
 Card4_image = []
+
+def card2img(card):
+	card_id = card.split(",")
+	card_img = "./img/card/half_png/" + card_id[0].lower() + card_id[1] + ".png"
+	return card_img
 
 for val in range(13):
 	Card1_image.append(pygame.image.load(card2img(Card1[val])).convert_alpha())
@@ -162,7 +171,6 @@ def transparent2(fade_image_filename, back_image_filename, color, x_pos, y_pos):
 #color has to be list of 3, fade image filename has to be list type
 def transparent3(fade_image_filename, back_image_filename, color, change_num, fade_speed):
 	global card_pos_info
-
 	fade_image = []
 
 	if fade_speed == "Default":
@@ -194,6 +202,17 @@ def transparent_activate(surface, fade_speed, fadeInOut):
 	else:
 		uialpha *= 1.2
 	del uialpha
+
+def allShow(color):	#all images has to be list type
+	global card_pos_info
+	image_name = []
+
+	for val in range(len(card_pos_info)):
+		image_name.append(pygame.image.load(card_pos_info[val][0]).convert_alpha())
+
+	screen.fill((color[0], color[1], color[2]))
+	for i in range(len(card_pos_info)):
+		screen.blit(image_name[i], (card_pos_info[i][1], card_pos_info[i][2]))
 
 def total(hold):
 	ace = 0
@@ -386,7 +405,7 @@ y1 = 0.0
 startFlag = 0
 
 while True:
-	while startFlag == 0:
+	while startFlag == 0:	#introduction
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				exit()
@@ -462,7 +481,7 @@ while True:
 			if event.key == K_SPACE:
 				startFlag = 1
 
- 	while startFlag == 1:
+ 	while startFlag == 1:	#move all card to middle to middle
 		if x1 > game_window[0] / 2 -  redBackCard_image.get_width() / 2:
 			x1 -= 1
 		elif x1 < game_window[0] / 2 - redBackCard_image.get_width() / 2:
@@ -484,7 +503,7 @@ while True:
 		pygame.time.delay(5)
 		pygame.display.update()
 
-	if startFlag == 2:
+	if startFlag == 2:	#transparent from card to backside
 		center_card = centerPos(redBackCard_image_filename)
 		transparent2(card2img(Card1[card_change]), redBackCard_image_filename, background_color, center_card[0],  center_card[1])
 		startFlag = 3
@@ -501,8 +520,7 @@ while True:
 
 #--------------------------------------------main start-------------------------------------------#
 
-	while startFlag == 3:
-
+	while startFlag == 3:	#set player and dealer's hand
 		if now > count - 4:	#deck shuffle
 			now = 0
 			random.shuffle(deck_num)
@@ -540,7 +558,7 @@ while True:
 		startFlag = 4
 		reset()
 
-	while startFlag == 4:
+	while startFlag == 4:	#open player and dealer's hand
 
 		dealer_hold = game_ready_dealer()
 		player_hold = game_ready_player()
@@ -560,3 +578,62 @@ while True:
 		startFlag = 5
 		reset()
 
+	while startFlag == 5:	#determine blackjack or not
+		if blackjack[0] == 1 and blackjack[1] == 1:	#Both player and dealer have blackjack
+			pygame.time.delay(1000)
+			allShow(background_color)
+			screen.blit(blackjack_image, ((game_window[0] - blackjack_image.get_width()) / 2, (game_window[1] - blackjack_image.get_height()) / 2))
+			pygame.display.update()
+			pygame.time.delay(2000)
+
+			allShow(background_color)
+			pygame.display.update()
+			pygame.time.delay(1000)
+
+			transparent3(card_pos_info, card2img(dealer_hold[1]), background_color, 4, 50)
+			pygame.time.delay(1000)
+
+			screen.blit(blackjack_image, ((game_window[0] - blackjack_image.get_width()) / 2, (game_window[1] - blackjack_image.get_height()) / 2))
+			pygame.display.update()
+			pygame.time.delay(2000)
+
+			allShow(background_color)
+			screen.blit(draw_image, ((game_window[0] - draw_image.get_width()) / 2, (game_window[1] - draw_image.get_height()) / 2))
+			pygame.display.update()
+			pygame.time.delay(2000)
+
+			player_action = 2
+			startFlag = 6
+
+		#elif blackjack[0] == 1:	#Dealer has blackjack
+		#	print "--Dealer's Hand--"
+		#	show(1, dealer_hold)
+		#	print "--Player's Hand--"
+		#	show(1, player_hold)
+		#	print "Dealer has blackjack!!!"
+		#	player_action = 2
+		#	startFlag = 6
+
+		elif blackjack[1] == 1:	#Player has blackjack
+			pygame.time.delay(1000)
+			allShow(background_color)
+			screen.blit(blackjack_image, ((game_window[0] - blackjack_image.get_width()) / 2, (game_window[1] - blackjack_image.get_height()) / 2))
+			pygame.display.update()
+			pygame.time.delay(2000)
+
+			allShow(background_color)
+			pygame.display.update()
+			pygame.time.delay(1000)
+
+			transparent3(card_pos_info, card2img(dealer_hold[1]), background_color, 4, 50)
+			pygame.time.delay(1000)
+
+			screen.blit(youwin_image, ((game_window[0] - youwin_image.get_width()) / 2, (game_window[1] - youwin_image.get_height()) / 2))
+			pygame.display.update()
+			pygame.time.delay(2000)
+
+			player_action = 2
+			startFlag = 6
+		else:
+			startFlag = 6
+		
